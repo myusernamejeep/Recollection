@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='fullcalendar/fullcalendar.css' rel='stylesheet' />
+<link href='fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+
+ <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="packaged/css/semantic.css">
+<script src='lib/jquery.min.js'></script>
+<script src='lib/jquery-ui.custom.min.js'></script>
+<script src='fullcalendar/fullcalendar.min.js'></script>
+<script src='fullcalendar/gcal.js'></script>
+<script>
+
+	$(document).ready(function() {
+	
+		$('#calendar').fullCalendar({
+		
+			// US Holidays
+			//events: 'https://www.google.com/calendar/feeds/13bunfjvn8llt9saatcacugupc%40group.calendar.google.com/private-55113a274aca592c121241f5ec002882/basic',
+			events: 'http://localhost:5000/calendar_events',
+			
+			eventClick: function(event) {
+				// opens events in a popup window
+				window.open(event.url, 'gcalevent', 'width=700,height=600');
+				return false;
+			},
+			
+			loading: function(bool) {
+				if (bool) {
+					$('#loading').show();
+				}else{
+					$('#loading').hide();
+				}
+			}
+			
+		});
+		
+	});
+
+</script>
+<style>
+
+	body {
+		margin-top: 40px;
+		text-align: center;
+		font-size: 14px;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		}
+		
+	#loading {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		}
+
+	#calendar {
+		width: 900px;
+		margin: 0 auto;
+		}
+
+</style>
+</head>
+<body>
+<div id='loading' style='display:none'>loading...</div>
+<div id='calendar'></div>
+</body>
+</html>

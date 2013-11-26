@@ -1,0 +1,289 @@
+<% include head %>
+  
+  <link href='/fullcalendar/fullcalendar.css' rel='stylesheet' />
+  <link href='/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+   
+  <script src='/lib/jquery-ui.custom.min.js'></script>
+  <script src='/fullcalendar/fullcalendar.min.js'></script>
+  <script src='/fullcalendar/gcal.js'></script>
+  
+  <% include menu %>
+ 
+  <% include header %>
+ 
+<script>
+
+  $(document).ready(function() {
+    var calendarId = "<%= calendarId %>";
+    if(calendarId){
+        var events = 'http://localhost:5000/calendar_events/' + calendarId;
+    }else{
+        var events = 'http://localhost:5000/calendar_events/all';
+    }
+
+    $('#cancle').click(function(){
+        $('#form_event').modal('hide');
+    });
+
+    $('#remove').click(function(){
+        $('#addevent').addClass("loading");        
+        $.ajax({ 
+           url: 'http://localhost:5000/event',
+           type: 'DELETE',
+           cache: false, 
+           data: $("#addevent").serialize(), 
+           success: function(data){
+              $('#addevent').removeClass("loading");  
+              console.log('Success!', data);
+ 
+              $("#success_modal").modal('setting', {
+                closable  : false,
+                onDeny    : function(){
+                  window.location.reload();
+                  return false;
+                },
+                onApprove : function() {
+                  window.location.reload();
+                }
+              }).modal('show');
+         
+           }
+           , error: function(jqXHR, textStatus, err){
+              $('#addevent').removeClass("loading");  
+               console.log('text status '+textStatus+', err '+err);
+ 
+              $("#fail_msg").html( textStatus+' , Error : '+err);
+              $("#fail_modal").modal('setting', {
+                closable  : false,
+                onDeny    : function(){
+                  $('#form_event').modal('show');
+                  return false;
+                },
+                onApprove : function() {
+                  $('#form_event').modal('show');
+                }
+              }).modal('show');
+           }
+        })
+    });
+
+    $('#calendar').fullCalendar({
+    
+      // US Holidays
+      //events: 'https://www.google.com/calendar/feeds/13bunfjvn8llt9saatcacugupc%40group.calendar.google.com/private-55113a274aca592c121241f5ec002882/basic',
+      events: events,
+      className: 'ui table segment',
+      header:
+        {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        defaultView: 'month',
+        selectable: true,
+        selectHelper: true,
+        select: function(start, end, allDay)
+        {
+          $('#eventId').val("");
+          $('#calendarId').val(calendarId);
+          $('#summary').val("");
+          $('#description').val(""); 
+          $('#startdate').val("");  
+          $('#starttime').val("");  
+          $('#enddate').val("");  
+          $('#endtime').val(""); 
+          $('#email').val("");  
+          $('#location').val(""); 
+          
+          $('#form_event').modal('show');
+ 
+        },
+
+        editable: true,
+        
+      eventClick: function(event) {
+        // opens events in a popup window
+        console.log(event);
+ 
+        $('#eventId').val(event.id || "");
+        $('#calendarId').val(event.calendarId || "");
+        $('#summary').val(event.title || "");
+        $('#description').val(event.description || ""); 
+
+        var start = event.start;
+        if(start){
+            var startDateObj = new Date(start);
+            var startdate = startDateObj.getFullYear() + "-" + ("0" + (startDateObj.getMonth() +　1)).slice(-2) +  "-" + ("0" + (startDateObj.getDate())).slice(-2)   ;
+            var startTime = ("0" + (startDateObj.getHours())).slice(-2) + ":" + ("0" + (startDateObj.getMinutes())).slice(-2)  + ":" + ("0" + (startDateObj.getSeconds())).slice(-2)  ; 
+            $('#startdate').val(startdate || "");  
+            $('#starttime').val(startTime || "");  
+ 
+        
+        }
+        var end = event.end;
+        if(end){
+            var endDateObj = new Date(end);
+            var enddate = endDateObj.getFullYear()  + "-" + ("0" + (endDateObj.getMonth() +　1)).slice(-2) + "-" +  ("0" + (endDateObj.getDate())).slice(-2) ;
+            var endTime = ("0" + (endDateObj.getHours())).slice(-2) + ":" + ("0" + (endDateObj.getMinutes())).slice(-2)  + ":" + ("0" + (endDateObj.getSeconds())).slice(-2);
+
+            $('#enddate').val(enddate || "");  
+            $('#endtime').val(endTime || "");  
+       
+        }
+        $('#email').val(event.email || "");  
+        $('#location').val(event.location || ""); 
+
+        $('#form_event').modal('show');
+          //window.open(event.url, 'gcalevent', 'width=700,height=600');
+        return false;
+      },
+      
+      loading: function(bool) {
+        if (bool) {
+          //$('#loading').show();
+          $('#calendar').append('<div id="dim_loader" class="ui active  dimmer"><div class="ui text loader">Loading</div></div>');
+
+        }else{
+          //$('#loading').hide();
+          $('#dim_loader').remove();
+        }
+      }
+      
+    });
+    
+  });
+
+</script>
+<style>
+
+  
+  #calendar {
+    width: 900px;
+    margin: 0 auto;
+  }
+  
+</style>
+ 
+<!--<div id='loading' style='display:none'>loading...</div>-->
+
+  <div class="ui modal" id="form_event" >
+      <i class="close icon"></i>
+      <div class="header">
+        Create Event
+      </div>
+ 
+      <div class="content ">
+          <form id="addevent" method="post" action="#">
+            <!--<div class="ui error message">
+              <div class="header">Action Forbidden</div>
+              <p>You can only sign up for an account once with a given e-mail address.</p>
+            </div> 
+            -->
+ 
+            <input name="_csrf" id="_csrf" type="hidden" value="<%= token %>">
+            <input name="eventId" id="eventId" type="hidden" value="">
+            <input name="calendarId" id="calendarId" type="hidden" value="<%= calendarId %>">
+            <div class="field">
+              <label>Summary</label>
+              <input name="summary" id="summary" placeholder="Summary" type="text">
+            </div>
+            <div class="field">
+              <label>Description</label>
+              <textarea  name=" description" id="description" placeholder="Description" ></textarea>
+            </div>
+            <div class="four fields">
+              <div class="field">
+                <label>Start Date</label>
+                <input type="text"   name="startdate" id="startdate" class="datepicker">
+              </div>
+              <div class="field">
+                <label>Start Time</label>
+                <input type="text"   name="starttime" id="starttime" class="timepicker">
+              </div>
+               
+              <div class="field">
+                <label>End Date</label>
+                <input type="text"   name="enddate" id="enddate" class="datepicker"> 
+              </div> 
+              <div class="field">
+                <label>End Time</label>
+                <input type="text"   name="endtime" id="endtime" class="timepicker">
+              </div> 
+
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input  name="email" id="email" placeholder="Email" type="email">
+            </div>
+            <div class="field">
+              <label>Location</label>
+              <input  name="location" id="location" placeholder="Location" type="text">
+              <div id="map-canvas"></div>
+            </div>
+     
+         
+            <div class="ui blue submit button" id="add">Submit</div>
+            <div class="ui blue cancle button" id="cancle">Cancle</div>
+            <div class="ui blue cancle button" id="remove">Remove</div>
+            <!--<div class="ui error message"></div>-->
+          </form>
+      </div>
+  </div>
+<div class="ui modal" id="success_modal" >
+  <i class="close icon"></i>
+  <div class="header">
+    Event Calendar
+  </div>
+  <div class="content">
+    <div class="center">
+      Update New Event complete !
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui button">OK</div>
+  </div>
+</div>
+
+<div class="ui modal" id="fail_modal" >
+  <i class="close icon"></i>
+  <div class="header">
+    Event Calendar
+  </div>
+  <div class="content">
+    <div class="center" id="fail_msg">
+       
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui button">OK</div>
+  </div>
+</div>
+   <!-- header form -->
+  <div class="segment">
+    <div class="container">
+      <div class="introduction">
+        <h1 class="ui dividing header">
+          Calendar
+        </h1>
+        <p>Calendar shows a collection of events</p>
+  
+      </div>
+    </div>
+  </div>
+
+  <!-- main container -->
+
+  <div class="main">
+    <!--<div class="peek">
+      <div class="ui vertical pointing secondary menu">
+        <a class="active item">Calendar Event</a>
+      </div>
+    </div>
+    
+    <h2 class="ui dividing header">Calendar Event</h2>
+-->
+    <div id='calendar' class="active"></div>
+  </div>
+
+<script type="text/javascript" src="/calendar.js"></script>
+ 

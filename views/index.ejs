@@ -1,0 +1,124 @@
+<% include head %>
+
+  <% include menu %>
+ 
+  <% include header %>
+   
+   <!-- header form -->
+  <div class="segment">
+    <div class="container">
+      <div class="introduction">
+        <h1 class="ui dividing header">
+          Calendar
+        </h1>
+        <p>Calendar shows a collection of events</p>
+        <!--<div class="ui basic labeled icon toggle overview button">
+          Definition Mode
+          <i class="book icon"></i>
+        </div>-->
+      </div>
+    </div>
+  </div>
+
+  <!-- main container -->
+
+  <div class="main container">
+    <div class="peek">
+      <div class="ui vertical pointing secondary menu">
+        <a class="active item">Calendar List</a>
+        <a class="active item">Feed Events List</a>
+      </div>
+    </div>
+ 
+    <h2 class="ui dividing header">Calendar List</h2>
+
+    <div class="example">
+   
+        <div class="ui animated divided selection list">
+          <% calendarList.items.forEach(function(calendar){ %>
+            
+            <div class="item">
+              <div class="right floated tiny teal ui button"><a href="calendar/<%= calendar.id %>" >View Calendar</a></div>
+  
+              <i class="calendar outline icon"></i>
+              <div class="content">
+                <div class="header"><%= calendar.summary %></div>
+                <%= calendar.description  %>
+              </div>
+            </div>
+          <% }) %>
+    
+        </div>  
+    </div>
+  
+
+    <h2 class="ui dividing header">Feed Events List</h2>
+
+    <div class="example">
+ 
+      <div class="ui  animated divided selection piled feed segment">
+        <h2 class="ui header">
+          Recent Events
+        </h2>
+        <!--
+        <div class="event">
+          <div class="label">
+            <img src="/images/demo/avatar2.jpg">
+          </div>
+          <div class="content">
+            <div class="date">
+              Just moments ago
+            </div>
+            <div class="summary">
+               <a>Sally Poodle</a> added you as a friend
+            </div>
+          </div>
+        </div>-->
+        <% events.forEach(function(event){ %>
+            
+          <div class="event">
+            <div class="label">
+               <a href="calendar/<%= event.calendarId %>" ><i class="circular pencil icon"></i></a>
+            </div>
+            <div class="content">
+              <div class="date">
+                start : <abbr class="timeago" title="<%= event.start %>"></abbr>
+                <strong>/</strong> end : <abbr class="timeago" title="<%= event.end %>"></abbr>  
+              </div>
+              <div class="summary">
+                <%= event.title %>
+              </div>
+              <div class="extra text">
+                <%= event.description %>
+              </div>
+            </div>
+          </div>
+
+        <% }) %>
+
+        <!--
+        <div class="event">
+          <div class="label">
+            <i class="circular photo icon"></i>
+          </div>
+          <div class="content">
+            <div class="date">
+              3 days ago
+            </div>
+            <div class="summary">
+              <a>Sally Poodle</a> added <a>2 new photos</a> of you
+            </div>
+            <div class="extra images">
+              <img src="/images/demo/item1.jpg">
+              <img src="/images/demo/item2.jpg">
+            </div>
+          </div>
+        </div>-->
+      </div>
+    </div>
+    
+  </div>  
+  <script type="text/javascript" src="/calendar.js"></script>
+</div>
+
+<% include footer %>

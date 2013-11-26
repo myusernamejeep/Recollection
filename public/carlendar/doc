@@ -1,0 +1,6 @@
+https://www.googleapis.com/calendar/v3/calendars/13bunfjvn8llt9saatcacugupc@group.calendar.google.com/events/jslk81dc4q810impgf2huf5dco
+https://github.com/wanasit/google-calendar
+https://developers.google.com/google-apps/calendar/v3/reference/events/get
+
+http://localhost:5000/events
+http://localhost:5000/calendar?calendarId=13bunfjvn8llt9saatcacugupc@group.calendar.google.com
